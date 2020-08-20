@@ -15,16 +15,14 @@
             <link type="text/css" rel="stylesheet" href="shopify_app/static/src/css/jquery-ui1.12.1.css"/>
             <script type="text/javascript" src="shopify_app/static/src/js/jquery-ui.min1.12.1.js"/>
         </xpath>
+
         <t t-if="message" >
-            <div class="alert alert-success" role="alert">
-                <strong>Well done! </strong><t t-esc="message" />
+            <div class="alert alert-primary" role="alert">
+                <t t-esc="message" />
             </div>
         </t>
-        <t t-if="request.params.get('error_message')">
-            <div class="alert alert-danger" role="alert">
-                <t t-esc="request.params.get('error_message')" />
-            </div>
-        </t>
+
+
         <div class="container">
 <!--            CARD 1 General Settings-->
             <div class="card">
@@ -123,9 +121,9 @@
                 </div>
                 <div class="card-body">
                     <div>
-                        <t t-if="message">
-                            <span class="text-danger"><t t-esc="message" /></span>
-                        </t>
+<!--                        <t t-if="message">-->
+<!--                            <span class="text-danger"><t t-esc="message" /></span>-->
+<!--                        </t>-->
                         <form action="/sync_to_xero" method="get">
                             From: <input type="text" name="from_date" id="MyTextbox" style="margin-right: 10px;" />
                             To: <input type="text" name="to_date" id="MyTextbox1" style="margin-right: 10px;" />

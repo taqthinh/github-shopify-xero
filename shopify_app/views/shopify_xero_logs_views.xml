@@ -9,6 +9,7 @@
                     <field name="shopify_store"/>
                     <field name="execution_time" />
                     <field name="finish_time" />
+                    <field name="is_cron" />
                     <field name="status" />
                 </tree>
             </field>
@@ -35,6 +36,7 @@
                                 <field name="finish_time" />
                             </group>
                             <group>
+                                <field name="is_cron" />
                                 <field name="status" />
                                 <field name="message" />
                                 <field name="stack_trace" />
@@ -51,8 +53,11 @@
         <field name="arch" type="xml">
             <search string="Shopify App Log">
                 <field name="shopify_store"/>
+<!--                <field name="is_cron" />-->
+<!--                <field name="status" />-->
 <!--                <field name="status" string="Log Status"/>-->
-<!--                <filter string="Auto Sync" name="auto_sync" domain="[('auto_sync','=',True)]"/>-->
+                <filter string="Is Cron = True" name="is_cron" domain="[('is_cron','=',True)]"/>
+                <filter string="Is Cron = False" name="is_cron" domain="[('is_cron','=',False)]"/>
 <!--                <group expand="0" string="Group By">-->
 <!--                    <filter string="Auto Sync" name="groupby_auto_sync" domain="[]" context="{'group_by': 'auto_sync'}"/>-->
 <!--                    <filter string="Plan" name="groupby_plan" domain="[]" context="{'group_by': 'plan'}"/>-->
@@ -85,6 +90,7 @@
                     <field name="shopify_store"/>
                     <field name="order_count" />
                     <field name="sync_date" />
+                    <field name="write_date" />
                 </tree>
             </field>
     </record>
@@ -119,6 +125,10 @@
         <field name="arch" type="xml">
             <search string="Order Request Logs">
                 <field name="shopify_store"/>
+                <group expand="0" string="Group By">
+                        <filter string="Sync Date" name="groupby_sync_date" domain="[]" context="{'group_by': 'sync_date'}"/>
+                        <filter string="Shopify Store" name="groupby_shopify_store" domain="[]" context="{'group_by': 'shopify_store'}"/>
+                    </group>
             </search>
          </field>
     </record>
@@ -144,6 +154,7 @@
                 <tree string="Request Logs">
                     <field name="shopify_store"/>
                     <field name="request_url" />
+                    <field name="write_date" />
                     <field name="response_code" />
                 </tree>
             </field>

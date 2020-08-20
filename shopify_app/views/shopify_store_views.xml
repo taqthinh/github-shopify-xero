@@ -8,6 +8,10 @@
                 <tree string="Stores">
 <!--                    <field name="name"/>-->
                     <field name="shopify_url" />
+                    <field name="plan" />
+                    <field name="charge_id" />
+                    <field name="orders_synced" />
+                    <field name="auto_sync"  widget="boolean"/>
                 </tree>
             </field>
     </record>
@@ -30,7 +34,7 @@
                             <group>
                                 <field name="shopify_token" />
                                 <field name="shopify_url" />
-                                <field name="api_key" />
+<!--                                <field name="api_key" />-->
                                 <field name="plan" />
                                 <field name="orders_synced" />
                                 <field name="charge_id" />
@@ -87,7 +91,7 @@
         </field>
     </record>
 
-    <menuitem id="shopify_store_root" name="Shopify" sequence="0" web_icon=""/>
-    <menuitem id="shopify_store_menu" name="Shopify Stores" sequence="1" parent="shopify_store_root" web_icon=""/>
-    <menuitem id="shopify_store" name="Shopify Stores" sequence="1" action="action_shopify_store" parent="shopify_store_menu" web_icon="" />
+    <menuitem id="shopify_store_root" name="Shopify Xero" sequence="0" web_icon=""/>
+    <menuitem id="shopify_store_menu" name="Shopify Stores" action="action_shopify_store" sequence="1" parent="shopify_store_root" web_icon=""/>
+<!--    <menuitem id="shopify_store" name="Shopify Stores" sequence="1" action="action_shopify_store" parent="shopify_store_menu" web_icon="" />-->
 </odoo>

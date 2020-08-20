@@ -71,5 +71,6 @@
         <field name="context">{'module' : 'shopify_app'}</field>
     </record>
 
-    <menuitem id="menu_shopify_xero_settings" name="Settings" sequence="100" action="action_shopify_xero_settings" parent="shopify_store_root" web_icon="" />
+    <menuitem id="menu_shopify_xero_configuration" name="Configuration" sequence="100"  parent="shopify_store_root" web_icon="" />
+    <menuitem id="menu_shopify_xero_settings" name="Settings" sequence="1" action="action_shopify_xero_settings" parent="menu_shopify_xero_configuration" web_icon="" />
 </odoo>

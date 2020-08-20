@@ -62,5 +62,6 @@
         </field>
     </record>
 
-    <menuitem id="app_plan" name="Plans" sequence="3" action="action_app_plan" parent="shopify_store_menu" web_icon="" />
+<!--    <menuitem id="app_plan" name="Plans" sequence="3" action="action_app_plan" parent="shopify_store_menu" web_icon="" />-->
+    <menuitem id="app_plan" name="Plans" sequence="2" action="action_app_plan" parent="shopify_app.menu_shopify_xero_configuration" web_icon="" />
 </odoo>

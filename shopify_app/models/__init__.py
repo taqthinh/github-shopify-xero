@@ -1,11 +1,9 @@
 
-# from . import res_config_settings
-# from . import res_partner
-from . import shopify_auth
-from . import xero_auth
-from . import xero_connect
-from . import shopify_xero_app
+
+from . import xero_connector
+from . import shopify_store_model
 from . import res_config_settings
-from . import plan
-from . import shopify_xero_log
-# from . import shopify_auth
+from . import plan_model
+from . import log_models
+# from . import xero_sync_models
+
