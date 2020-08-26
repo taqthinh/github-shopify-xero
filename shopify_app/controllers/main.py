@@ -48,9 +48,20 @@ class MainController(http.Controller):
             plans = request.env['app.plan'].sudo().search([])
             logs = request.env['app.log'].sudo().search([('shopify_store', '=', shopify_store.id)], limit=10, order='create_date desc')
             message = request.params.get('message')
+            shopify_store_dict = {
+                "sale_account": shopify_store.sale_account,
+                "shipping_account": shopify_store.shipping_account,
+                "payment_account": shopify_store.payment_account,
+                "auto_sync": shopify_store.auto_sync,
+                "store_plan_order_number": shopify_store.plan.order_number,
+                "store_plan_is_unlimited": shopify_store.plan.is_unlimited,
+                "store_plan_name": shopify_store.plan.name,
+                "orders_synced": shopify_store.orders_synced,
+            }
             context = {
                 'shop_url': shop_url,
                 'shopify_store': shopify_store,
+                # 'shopify_store': shopify_store_dict,
                 # 'accounts': accounts,
                 'sale_accounts': sale_accounts,
                 'shipping_accounts': shipping_accounts,
@@ -60,7 +71,7 @@ class MainController(http.Controller):
                 'organisation_name': organisation_name,
                 'message': message,
             }
-            return request.render('shopify_app.index', context)
+            return request.render('shopify_app.index1', context)
         except Exception as e:
             _logger.error(traceback.format_exc())
             return werkzeug.utils.redirect('/reset')

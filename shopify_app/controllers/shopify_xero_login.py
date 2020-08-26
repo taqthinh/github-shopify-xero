@@ -20,6 +20,10 @@ class ShopifyController(http.Controller):
             return werkzeug.utils.redirect('/index')
         return view()
 
+    @http.route('/index1', type='http', auth="public")
+    def index1(self):
+        return request.render('shopify_app.index1')
+
     @http.route('/shopify/login', auth='public', type='http')
     def shopify_login(self,**kw):
         shop_url = kw['shop']
