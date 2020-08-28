@@ -11,19 +11,26 @@
         <script>
             window.config = {
                 shop_url: "<t t-raw="shop_url" />",
-                shopify_store: "<t t-raw="shopify_store" />",
-                sale_accounts: "<t t-raw="sale_accounts" />",
-                shipping_accounts: "<t t-raw="shipping_accounts" />",
-                payment_accounts: "<t t-raw="payment_accounts" />",
-                plans: "<t t-raw="plans" />",
-                logs: "<t t-raw="logs" />",
+                shopify_store: <t t-raw="shopify_store" />,
+                sale_accounts: <t t-raw="sale_accounts" />,
+                shipping_accounts: <t t-raw="shipping_accounts" />,
+                payment_accounts: <t t-raw="payment_accounts" />,
+                plans: <t t-raw="plans" />,
+                logs: <t t-raw="logs" />,
                 organisation_name: "<t t-raw="organisation_name" />",
                 message: "<t t-raw="message" />",
+
               };
         </script>
-        <div id="container12"></div>
+        <div id="root"></div>
         <t t-call-assets="shopify_app.package"/>
-
+<!--        <script>-->
+<!--            window.config = {-->
+<!--                shop_url: "<t t-raw="shop_url" />",-->
+<!--                organisation_name: "<t t-raw="organisation_name" />",-->
+<!--                name: "thinh123",-->
+<!--              };-->
+<!--        </script>-->
 
     </template>
 

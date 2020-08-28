@@ -64,8 +64,8 @@ class ShopifyStore(models.Model):
             interval_number = int(shop.plan.interval_number)
             next_call = (last_sync + timedelta(hours=interval_number))
             now = shop.get_now_shop_timezone()
-            # if now >= next_call:
-            if now < next_call:  # for test
+            if now >= next_call:
+            # if now < next_call:  # for test
                 log = {'shopify_store': shop.id,
                        'is_cron': True}
                 try:

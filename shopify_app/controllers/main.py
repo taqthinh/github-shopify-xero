@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, date
 from urllib.parse import urlencode
 import logging
 import traceback
+import json
 _logger = logging.getLogger(__name__)
 
 
@@ -49,25 +50,44 @@ class MainController(http.Controller):
             logs = request.env['app.log'].sudo().search([('shopify_store', '=', shopify_store.id)], limit=10, order='create_date desc')
             message = request.params.get('message')
             shopify_store_dict = {
-                "sale_account": shopify_store.sale_account,
-                "shipping_account": shopify_store.shipping_account,
-                "payment_account": shopify_store.payment_account,
-                "auto_sync": shopify_store.auto_sync,
+                "sale_account": shopify_store.sale_account if shopify_store.sale_account else '',
+                "shipping_account": shopify_store.shipping_account if shopify_store.shipping_account else '',
+                "payment_account": shopify_store.payment_account if shopify_store.payment_account else '',
+                "auto_sync": 1 if shopify_store.auto_sync else 0,
                 "store_plan_order_number": shopify_store.plan.order_number,
-                "store_plan_is_unlimited": shopify_store.plan.is_unlimited,
-                "store_plan_name": shopify_store.plan.name,
+                "store_plan_is_unlimited": 1 if shopify_store.plan.is_unlimited else 0,
+                "store_plan_id": shopify_store.plan.id,
                 "orders_synced": shopify_store.orders_synced,
             }
+            plans_list = []
+            for plan in plans:
+                plan_dict = {
+                    "plan_id": plan.id,
+                    "plan_name": plan.name,
+                    "plan_interval_number": plan.interval_number,
+                    "plan_cost": plan.cost,
+                    "plan_order_number": plan.order_number,
+                }
+                plans_list.append(plan_dict)
+            log_list = []
+            for log in logs:
+                log = [
+                    log.execution_time.strftime("%Y-%m-%d %H:%M:%S") if log.execution_time else '',
+                    log.finish_time.strftime("%Y-%m-%d %H:%M:%S") if log.finish_time else '',
+                    log.status,
+                    log.message,
+                ]
+                log_list.append(log)
             context = {
                 'shop_url': shop_url,
-                'shopify_store': shopify_store,
-                # 'shopify_store': shopify_store_dict,
+                # 'shopify_store': shopify_store,
+                'shopify_store': shopify_store_dict,
                 # 'accounts': accounts,
                 'sale_accounts': sale_accounts,
                 'shipping_accounts': shipping_accounts,
                 'payment_accounts': payment_accounts,
-                'plans': plans,
-                'logs': logs,
+                'plans': plans_list,
+                'logs': log_list,
                 'organisation_name': organisation_name,
                 'message': message,
             }
@@ -84,8 +104,8 @@ class MainController(http.Controller):
             url = redirect_admin_app_page()
             xero_session.reset()
             shopify_session.reset()
-            request.session.pop('shopify_xero', None)
-            request.session.pop('xero', None)
+            # request.session.pop('shopify_xero', None)
+            # request.session.pop('xero', None)
         except Exception as e:
             _logger.error(traceback.format_exc())
         return request.render('shopify_app.redirect_top', {
@@ -109,7 +129,8 @@ class MainController(http.Controller):
                 payment_account = kw['payment_account']
             auto_sync = False
             if 'auto_sync' in kw:
-                auto_sync = True
+                if kw['auto_sync']:
+                    auto_sync = True
 
             vals = {
                 'sale_account': sale_account,
@@ -162,10 +183,10 @@ class MainController(http.Controller):
         except Exception as e:
             _logger.error(traceback.format_exc())
             message = 'Save Settings Error: please contact to Admin to get infomation'
-        return request.render('shopify_app.redirect_top', {
-            'redirect_url': str(redirect_admin_app_page()) + '?' + urlencode(
-                {'message': message})
-        })
+        return werkzeug.utils.redirect('/index?' + urlencode({'message': message}))
+        # return request.render('shopify_app.redirect_top', {
+        #     'redirect_url': str(redirect_admin_app_page()) + '?' + urlencode({'message': message})
+        # })
 
     @http.route('/disconnect', auth='public', type='http', csrf=False)
     def disconnect_xero(self, **kw):

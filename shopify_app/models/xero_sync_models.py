@@ -35,9 +35,9 @@ class XeroContact(AbstractModel):
     def sync(self):
         xero_connector = self.xero_connector
         customers = shopify.Customer.find(limit=200, **self.filters)
-        while True:
-            vals_list = []
-            if customers:
+        if customers:
+            while True:
+                vals_list = []
                 for customer in customers:
                     vals = self.customer_vals(customer)
                     vals_list.append(vals)
@@ -87,9 +87,9 @@ class XeroProduct(AbstractModel):
     def sync(self):
         xero_connector = self.xero_connector
         products = shopify.Product.find(limit=200, **self.filters)
-        while True:
-            vals_list = []
-            if products:
+        if products:
+            while True:
+                vals_list = []
                 for product in products:
                     for variant in product.variants:
                         if variant.fulfillment_service == 'gift_card':
@@ -133,12 +133,12 @@ class XeroOrder(AbstractModel):
         shopify_store = self.shopify_store
         if not shopify_store.orders_synced >= shopify_store.plan.order_number or shopify_store.plan.is_unlimited:
             orders = shopify.Order.find(limit=200, **self.filters)
-            while True:
-                vals_list = []
-                list_payment_vals = []
-                list_refund_vals = []
-                list_allocate_refund_vals = []
-                if orders:
+            if orders:
+                while True:
+                    vals_list = []
+                    list_payment_vals = []
+                    list_refund_vals = []
+                    list_allocate_refund_vals = []
                     for order in orders:
                         order_vals = self.order_vals(order)
                         vals_list.append(order_vals)
