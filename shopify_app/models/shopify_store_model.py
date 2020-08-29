@@ -187,13 +187,13 @@ class ShopifyStore(models.Model):
 
     def convert_to_shop_timezone(self, utc_dt):
         import pytz
-        timezone = self.timezone.split(' ')
-        return utc_dt.replace(tzinfo=pytz.utc).astimezone(pytz.timezone(timezone[1]))
+        timezone = self.timezone
+        return utc_dt.replace(tzinfo=pytz.utc).astimezone(pytz.timezone(timezone))
         # timezone = self.timezone.split(' ')
         # local_dt = utc_dt.replace().astimezone()
         # return timezone.normalize(local_dt)
 
     def get_now_shop_timezone(self):
         import pytz
-        timezone = self.timezone.split(' ')
-        return datetime.now(pytz.timezone(timezone[1]))
+        timezone = self.timezone
+        return datetime.now(pytz.timezone(timezone))

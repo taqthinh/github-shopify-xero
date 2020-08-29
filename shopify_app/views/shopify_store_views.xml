@@ -36,6 +36,7 @@
                                 <field name="shopify_url" />
 <!--                                <field name="api_key" />-->
                                 <field name="plan" />
+                                <field name="timezone" />
                                 <field name="orders_synced" />
                                 <field name="charge_id" />
                             </group>

@@ -1,10 +1,11 @@
-import {Frame, Toast, DataTable, DatePicker, Checkbox ,Select, AppProvider, Card,TextField, Button, TextStyle, EmptyState, Form, FormLayout, Layout, Page } from '@shopify/polaris';
+import {List, Frame, Toast, DataTable, DatePicker, Checkbox ,Select, AppProvider, Card,TextField, Button, TextStyle, EmptyState, Form, FormLayout, Layout, Page } from '@shopify/polaris';
 import React, {Component, useState, useCallback} from 'react';
 import ReactDOM from "react-dom";
 import '@shopify/polaris/dist/styles.css';
 import translations from '@shopify/polaris/locales/en.json';
+import moment from 'moment-timezone';
+
 const AppConfig = window.config;
-console.log("window.config.shopify_store.sale_account: "+ window.config.shopify_store.sale_account)
 
 class AccountSettingForm extends Component{
     constructor(props) {
@@ -52,7 +53,6 @@ class AccountSettingForm extends Component{
             current_auto_sync = 'True'
         }
         let url = '/save_settings?sale_account='+current_sale_account+'&shipping_account='+current_shipping_account+'&payment_account='+current_payment_account+'&auto_sync='+current_auto_sync
-        console.log("settings: "+ url)
         return url
     }
 
@@ -78,9 +78,15 @@ class AccountSettingForm extends Component{
 class ExportForm extends Component {
     constructor(props) {
         super(props);
+        var newDate = new Date();
+        if (AppConfig.shopify_store.timezone){
+            newDate = new Date(newDate.toLocaleString('en-US', {timeZone: AppConfig.shopify_store.timezone}));
+        }
         this.state = {
-            date:  {month: new Date().getMonth(), year: new Date().getFullYear()},
-            selectedDate: {start: new Date(), end: new Date()}
+            timezone: AppConfig.shopify_store.timezone,
+            date: {month: newDate.getMonth(), year: newDate.getFullYear()},
+            selectedDate: {start: newDate, end: newDate},
+
         };
         this.handleSelectedDates = this.handleSelectedDates.bind(this);
         this.handleMonthChange = this.handleMonthChange.bind(this);
@@ -203,34 +209,34 @@ class PlanForm extends Component{
     showPlanDescription(plan){
         if (plan.plan_name == "Essential"){
             return (
-                <div>
-                    <p>Sync Customers, Products, Orders to Xero</p>
-                    <p>Manually Sync in date range</p>
-                    <p>Automatic Updates every {plan.plan_interval_number} hours</p>
-                    <p>Account Mapping</p>
-                    <p>Synchronization History</p>
-                    <p>{plan.plan_order_number} Orders/month</p>
-                </div>
+                <List>
+                    <List.Item>Sync Customers, Products, Orders to Xero</List.Item>
+                    <List.Item>Manually Sync in date range</List.Item>
+                    <List.Item>Automatic Updates every {plan.plan_interval_number} hours</List.Item>
+                    <List.Item>Account Mapping</List.Item>
+                    <List.Item>Synchronization History</List.Item>
+                    <List.Item>{plan.plan_order_number} Orders/month</List.Item>
+                </List>
             )
         }
         else if (plan.plan_name == "Standard"){
             return (
-                <div>
-                    <p>All Essential Features</p>
-                    <p>Automatic Updates every {plan.plan_interval_number} hours</p>
-                    <p>Sync Gift Cards, Refunds to Xero</p>
-                    <p>{plan.plan_order_number} Orders/month</p>
-                </div>
+                <List>
+                    <List.Item>All Essential Features</List.Item>
+                    <List.Item>Automatic Updates every {plan.plan_interval_number} hours</List.Item>
+                    <List.Item>Sync Gift Cards, Refunds to Xero</List.Item>
+                    <List.Item>{plan.plan_order_number} Orders/month</List.Item>
+                </List>
             )
         }
         else if (plan.plan_name == "Professional"){
             return (
-                <div>
-                    <p>All Standard Features</p>
-                    <p>Automatic Updates every {plan.plan_interval_number} hours</p>
-                    <p>Sync Gift Cards, Refunds to Xero</p>
-                    <p>Unlimited Orders per month</p>
-                </div>
+                <List>
+                    <List.Item>All Standard Features</List.Item>
+                    <List.Item>Automatic Updates every {plan.plan_interval_number} hours</List.Item>
+                    <List.Item>Sync Gift Cards, Refunds to Xero</List.Item>
+                    <List.Item>Unlimited Orders per month</List.Item>
+                </List>
             )
         }
     }
@@ -254,13 +260,15 @@ class PlanForm extends Component{
         return (
             <Layout>
                 {this.state.plans.map((plan)=>(
-                    <Layout.Section oneThird>
-                        <Card sectioned
-                              title={this.showPlanName(this.state.current_plan_id,plan.plan_id, plan.plan_name )} >
-                            {this.showPlanCost(plan.plan_cost)}
-                            <br/>
-                            {this.showPlanDescription(plan)}
-                            {this.showSignUpPlanButton(plan,this.state.current_plan_id)}
+                    <Layout.Section oneThird style={{ height: '100%' }}>
+                        <Card style={{ height: '100%' }}
+                        title={this.showPlanName(this.state.current_plan_id,plan.plan_id, plan.plan_name )} >
+                            <Card.Section >
+                                {this.showPlanCost(plan.plan_cost)}
+                                <br/>
+                                {this.showPlanDescription(plan)}
+                                {this.showSignUpPlanButton(plan,this.state.current_plan_id)}
+                            </Card.Section>
                         </Card>
                 </Layout.Section>
                 ))}
@@ -360,7 +368,6 @@ class Main extends Component{
             </AppProvider>
         )
     }
-
 }
 
 export default Main;

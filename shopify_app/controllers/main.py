@@ -45,7 +45,14 @@ class MainController(http.Controller):
                         'name': account['Code'] + ' - ' + account['Name'],
                         'code': account['Code'],
                     })
-
+            if not shopify_store.sale_account:
+                shopify_store.sale_account = sale_accounts[0]['code']
+            if not shopify_store.shipping_account:
+                shopify_store.shipping_account = shipping_accounts[0]['code']
+            if not shopify_store.payment_account:
+                shopify_store.payment_account = payment_accounts[0]['code']
+            if not shopify_store.auto_sync:
+                shopify_store.auto_sync = True
             plans = request.env['app.plan'].sudo().search([])
             logs = request.env['app.log'].sudo().search([('shopify_store', '=', shopify_store.id)], limit=10, order='create_date desc')
             message = request.params.get('message')
@@ -58,6 +65,7 @@ class MainController(http.Controller):
                 "store_plan_is_unlimited": 1 if shopify_store.plan.is_unlimited else 0,
                 "store_plan_id": shopify_store.plan.id,
                 "orders_synced": shopify_store.orders_synced,
+                "timezone": shopify_store.timezone if shopify_store.timezone else '',
             }
             plans_list = []
             for plan in plans:
@@ -71,13 +79,13 @@ class MainController(http.Controller):
                 plans_list.append(plan_dict)
             log_list = []
             for log in logs:
-                log = [
-                    log.execution_time.strftime("%Y-%m-%d %H:%M:%S") if log.execution_time else '',
-                    log.finish_time.strftime("%Y-%m-%d %H:%M:%S") if log.finish_time else '',
+                log_vals = [
+                    shopify_store.convert_to_shop_timezone(log.execution_time).strftime("%Y-%m-%d %H:%M:%S") if log.execution_time else '',
+                    shopify_store.convert_to_shop_timezone(log.finish_time).strftime("%Y-%m-%d %H:%M:%S") if log.execution_time else '',
                     log.status,
                     log.message,
                 ]
-                log_list.append(log)
+                log_list.append(log_vals)
             context = {
                 'shop_url': shop_url,
                 # 'shopify_store': shopify_store,
@@ -91,7 +99,7 @@ class MainController(http.Controller):
                 'organisation_name': organisation_name,
                 'message': message,
             }
-            return request.render('shopify_app.index1', context)
+            return request.render('shopify_app.index', context)
         except Exception as e:
             _logger.error(traceback.format_exc())
             return werkzeug.utils.redirect('/reset')
@@ -216,9 +224,11 @@ class MainController(http.Controller):
                 return werkzeug.utils.redirect(shop_new_plan.confirmation_url)
         except Exception as e:
             _logger.error(traceback.format_exc())
-            return request.render('shopify_app.redirect_top', {
-                'redirect_url': redirect_admin_app_page() + '?' + urlencode({'message': str(e)})
-            })
+            return werkzeug.utils.redirect('/index?' + urlencode({'message': str(e)}))
+
+            # return request.render('shopify_app.redirect_top', {
+            #     'redirect_url': redirect_admin_app_page() + '?' + urlencode({'message': str(e)})
+            # })
 
     @http.route('/approve', auth='public', type='http', csrf=False)
     def approve(self, **kw):

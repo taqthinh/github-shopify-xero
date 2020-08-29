@@ -1,5 +1,7 @@
 from odoo import http
-from odoo.http import request
+from odoo.http import request, Response
+from werkzeug.http import dump_cookie
+from odoo.service import security
 import shopify
 import werkzeug
 import json
@@ -9,6 +11,51 @@ from .main import redirect_admin_app_page
 import logging
 import traceback
 _logger = logging.getLogger(__name__)
+
+class Root(http.Root):
+    def get_response(self, httprequest, result, explicit_session):
+        if isinstance(result, Response) and result.is_qweb:
+            try:
+                result.flatten()
+            except Exception as e:
+                if request.db:
+                    result = request.registry['ir.http']._handle_exception(e)
+                else:
+                    raise
+
+        if isinstance(result, (bytes, str)):
+            response = Response(result, mimetype='text/html')
+        else:
+            response = result
+
+        save_session = (not request.endpoint) or request.endpoint.routing.get('save_session', True)
+        if not save_session:
+            return response
+
+        if httprequest.session.should_save:
+            if httprequest.session.rotate:
+                self.session_store.delete(httprequest.session)
+                httprequest.session.sid = self.session_store.generate_key()
+                if httprequest.session.uid:
+                    httprequest.session.session_token = security.compute_session_token(httprequest.session, request.env)
+                httprequest.session.modified = True
+            self.session_store.save(httprequest.session)
+        # We must not set the cookie if the session id was specified using a http header or a GET parameter.
+        # There are two reasons to this:
+        # - When using one of those two means we consider that we are overriding the cookie, which means creating a new
+        #   session on top of an already existing session and we don't want to create a mess with the 'normal' session
+        #   (the one using the cookie). That is a special feature of the Session Javascript class.
+        # - It could allow session fixation attacks.
+        if not explicit_session and hasattr(response, 'set_cookie'):
+            cookie = dump_cookie('session_id', request.session.sid, max_age=90 * 24 * 60 * 60, secure=True,
+                                 httponly=True)
+            cookie = "{}; {}".format(cookie, b'SameSite=None'.decode('latin1'))
+            response.headers.add('Set-Cookie', cookie)
+
+        return response
+
+
+http.Root.get_response = Root.get_response
 
 class ShopifyController(http.Controller):
 
@@ -49,7 +96,8 @@ class ShopifyController(http.Controller):
         try:
             if token:
                 shopify_session = ShopifySession(shop_url=shop_url, token=token)
-                timezone = shopify_session.set_shopify_store_timezone()
+                timezone = shopify_session.set_shopify_store_timezone().split(' ')
+                timezone = timezone[1]
                 store_vals = {
                     'shopify_token': token,
                     'shopify_url': shop_url,
